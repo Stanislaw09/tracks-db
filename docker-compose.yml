@@ -5,6 +5,9 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_DB: tracksdb
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+    secrets:
+      - db_password
     ports:
       - "5432:5432"
     volumes:
