@@ -1,0 +1,33 @@
+services:
+  db:
+    image: postgres:15
+    container_name: tracksdb
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: tracksdb
+    secrets:
+      - db_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./tracks.sql:/docker-entrypoint-initdb.d/tracks.sql:ro
+
+  backend:
+    build: .
+    container_name: deno-backend
+    environment:
+      DB_USER: postgres
+      DB_NAME: tracksdb
+      DB_HOST: db
+      DB_PASS_FILE: /run/secrets/db_password
+    secrets:
+      - db_password
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
+secrets:
+  db_password:
+    file: ./db_password.txt
+
