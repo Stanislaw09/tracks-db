@@ -11,7 +11,9 @@ services:
       - ./tracks.sql:/docker-entrypoint-initdb.d/tracks.sql:ro
 
   backend:
-    build: .
+    build:
+      context: .
+      dockerfile: ./Dockerfile
     container_name: deno-backend
     environment:
       DB_USER: postgres
