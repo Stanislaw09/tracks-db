@@ -7,18 +7,32 @@ async function getDbPassword() {
   if (passFile) {
     return (await Deno.readTextFile(passFile)).trim();
   }
-  return Deno.env.get('DB_PASS') || 'postgres';
+  return Deno.env.get('DB_PASS');
 }
 
 const sql = new Client({
-  user: Deno.env.get('DB_USER') || 'postgres',
+  user: Deno.env.get('DB_USER'),
   password: await getDbPassword(),
   database: Deno.env.get('DB_NAME') || 'tracksdb',
   hostname: Deno.env.get('DB_HOST') || 'localhost',
   port: 5432,
 });
 
-await sql.connect();
+async function connect(client, retries = 10, delayMs = 1000) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      await client.connect();
+      console.log('Connected to database');
+      return;
+    } catch (err) {
+      console.error(`DB connection failed (attempt ${i + 1}/${retries}):`, err.message);
+      if (i < retries - 1) await new Promise(res => setTimeout(res, delayMs));
+    }
+  }
+  throw new Error('Could not connect to database after multiple attempts');
+}
+
+await connect(sql);
 
 serve(
   async (req: Request) => {
