@@ -5,8 +5,6 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_DB: tracksdb
-    secrets:
-      - db_password
     ports:
       - "5432:5432"
     volumes:
@@ -19,7 +17,7 @@ services:
       DB_USER: postgres
       DB_NAME: tracksdb
       DB_HOST: db
-      DB_PASS_FILE: /run/secrets/db_password
+      DB_PASS_FILE: /run/secrets/db_password   # backend reads password from this file
     secrets:
       - db_password
     ports:
@@ -29,5 +27,4 @@ services:
 
 secrets:
   db_password:
-    file: ./db_password.txt
-
+    file: ./db_password.txt   # will be created dynamically by your fetch script
